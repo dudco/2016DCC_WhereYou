@@ -1,0 +1,24 @@
+{
+  "name": "whereyou",
+  "version": "1.0.0",
+  "description": "2016 Disital Conetnet Contest",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dudco/2016DCC_WhereYou.git"
+  },
+  "author": "dudco",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/dudco/2016DCC_WhereYou/issues"
+  },
+  "homepage": "https://github.com/dudco/2016DCC_WhereYou#readme",
+  "dependencies": {
+    "body-parser": "^1.15.2",
+    "express": "^4.14.0",
+    "mongoose": "^4.6.0"
+  }
+}
