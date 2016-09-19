@@ -2,11 +2,12 @@ var express = require('express')
 var app = express()
 var mongoose = require('mongoose')
 var bodyParser = require('body-parser')
+var passport = require('passport')
+var LocalStrategy = require('passport-local').Strategy;
+var session = require('express-session')
 
-app.use(bodyParser.urlencoded({
-  extended : true
-}))
-
+app.use(bodyParser.urlencoded({extended : true}))
+//setHeaders
 app.use(function (req, res, next) {
     // Website you wish to allow to connect
     res.setHeader('Access-Control-Allow-Origin', '*');
@@ -20,6 +21,49 @@ app.use(function (req, res, next) {
     // Pass to next layer of middleware
     next();
 });
+app.use(session({
+  secret: '1234DSFs@adf1234!@#$asd',
+  resave: false,
+  saveUninitialized: true
+}));
+app.use(passport.initialize());
+app.use(passport.session());
+
+passport.use(new LocalStrategy({
+  usernameField : "id",
+  passwordField : "password"
+  },
+  function(id, password, done) {
+    User.findOne({ id: id}, function (err, user) {
+      if (err) { return done(err); }
+      if (!user) {
+        console.log("ID err")
+        return done(null, false);
+      }else if(user.pw != password){
+        console.log("Password Err")
+        return done(null, false);
+      }
+      return done(null, user);
+    });
+  }
+));
+
+passport.serializeUser(function(user, done) {
+  console.log("serialize")
+  done(null, user._id);
+});
+passport.deserializeUser(function(id, done) {
+  console.log("deserialize")
+  User.findById({_id : id}, function(err, user) {
+    if(err){
+      console.log("Error" + err)
+      done(null, false)
+    }else{
+      done(null, user);
+    }
+  });
+});
+
 var schema = mongoose.Schema;
 mongoose.connect("mongodb://localhost/wy", function(err) {
   if(err){
@@ -27,6 +71,7 @@ mongoose.connect("mongodb://localhost/wy", function(err) {
     throw err;
   }
 })
+
 
 app.listen(3000, function(){
   console.log("Server Runnging at 3000 Port");
@@ -50,7 +95,6 @@ var userSchema = new schema({
     type : Date
   }
 })
-
 var locationSchema = new schema({
   id : {
     type : String
@@ -65,6 +109,9 @@ var locationSchema = new schema({
 
 var User = mongoose.model('user', userSchema);
 var Loca = mongoose.model('location', locationSchema);
+var Pass = passport.authenticate('local')
 
-require('./route/web')(app, User, Loca)
-require('./route/and')(app, User, Loca)
+
+require('./route/web')(app, User, Loca, Pass)
+require('./route/and')(app, User, Loca, Pass)
+require('./route/auth')(app, User, Pass)
