@@ -4,7 +4,6 @@ function init(app, User, Pass) {
   app.post('/login', Pass ,function(req, res) {
     res.send(req.user)
   })
-
   app.post('/register', function(req, res){
     user = new User({
       id : req.param('id'),
