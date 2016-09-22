@@ -9,10 +9,21 @@
 
     param으로 id, password, username을 받습니다.
 
-* #### "/logout"
+* #### "/logout" GET
 
     param따위 ㅋ
 
+* #### "/nowuser"  GET
+
+    현재 로그인 되어있는 유저 정보 반환
+    
+* #### "/addfriend"
+
+    친구 추가 param으로 id , Fid(친구의 아이디)를 받습니다
+    
+* #### "/getfriendlist"
+
+    친구 리스트 불러오기 param으로 id를 받습니다.
 
 Web사용법
 -
