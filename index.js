@@ -1,5 +1,7 @@
 var express = require('express')
 var app = express()
+var http = require('http').Server(app)
+var io = require('socket.io')(http)
 var mongoose = require('mongoose')
 var bodyParser = require('body-parser')
 var passport = require('passport')
@@ -28,18 +30,19 @@ app.use(session({
 }));
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(express.static('public'));
 
 passport.use(new LocalStrategy({
   usernameField : "id",
-  passwordField : "password"
+  passwordField : "pw"
   },
-  function(id, password, done) {
+  function(id, pw, done) {
     User.findOne({ id: id}, function (err, user) {
       if (err) { return done(err); }
       if (!user) {
         console.log("ID err")
         return done(null, false);
-      }else if(user.pw != password){
+      }else if(user.pw != pw){
         console.log("Password Err")
         return done(null, false);
       }
@@ -73,12 +76,13 @@ mongoose.connect("mongodb://localhost/wy", function(err) {
 })
 
 
-app.listen(3000, function(){
+http.listen(3000, function(){
   console.log("Server Runnging at 3000 Port");
 })
 
+
 app.get('/', function(req, res){
-  res.send('Server Runnging at Port 3000');
+  res.sendfile('index.html');
 })
 
 var userSchema = new schema({
@@ -93,6 +97,9 @@ var userSchema = new schema({
   },
   MD : {
     type : Date
+  },
+  Friend : {
+    type : []
   }
 })
 var locationSchema = new schema({
@@ -106,6 +113,29 @@ var locationSchema = new schema({
     type : String
   }
 })
+
+io.on('connection',function(socket) {
+  console.log('user')
+  //get data(user info)
+  socket.on('data', function(data) {
+    console.log(data);
+    var Data = data;
+    //join group
+    socket.join(data.room, function() {
+      console.log('user' + socket.id + 'join at '+ data.room)
+      io.in(data.room).emit('join','user ' + data.user + ' join at '+ data.room)
+    })
+    //get message
+    socket.on('message',function(msg) {
+      //response message at client
+      socket.emit('mymsg', msg)
+      //resoponse message at other
+      socket.to(data.room).emit('msg', msg)
+    })
+  })
+})
+
+
 
 var User = mongoose.model('user', userSchema);
 var Loca = mongoose.model('location', locationSchema);

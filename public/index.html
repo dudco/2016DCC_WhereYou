@@ -1,0 +1,56 @@
+<!doctype html>
+<html>
+  <head>
+    <title>Socket.IO chat</title>
+    
+  </head>
+  <body>
+    <form class="username" action="">
+      room :
+      <input type="text" id="roomname" placeholder="room">
+      name :
+      <input type="text" id="username" placeholder="name">
+      <input type="button" id="btn" value="set name"></input>
+    </form>
+
+    <form  action="">
+      <input type="text" id="put">
+    </form>
+    <ul id="message"></ul>
+    <script src="http://localhost:3000/socket.io/socket.io.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js" charset="utf-8"></script>
+    <script>
+    var socket = io()
+      $("#btn").click(function() {
+        console.log($('#username').val())
+        var chat = {
+          user : $("#username").val(),
+          room : $("#roomname").val()
+        }
+        //send user data
+        socket.emit('data', chat)
+        //get join user
+        socket.on('join', function(data){
+          $('#message').append($('<li>').text(data));
+        })
+      })
+      //send message
+      $('form').submit(function() {
+         console.log($('#put').val())
+         socket.emit('message', $('#put').val())
+         $('#put').val('')
+         return false
+       })
+      //get my message
+      socket.on('mymsg', function(data) {
+        console.log(data);
+        $('#message').append($('<li>').text(data));
+      })
+      //get other massage
+      socket.on('msg', function(data) {
+        console.log("msg : "+ data);
+        $('#message').append($('<li>').text("broadcast : "+data));
+      })
+  </script>
+  </body>
+</html>

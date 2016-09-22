@@ -43,4 +43,54 @@ function init(app, User, Pass) {
       res.redirect('/');
     });
   });
+  app.get('/nowuser',function(req, res) {
+    if(!req.user){
+      console.log("not logined");
+      req.send(400, {message : "not logined"})
+    }else{
+      console.log(req.user);
+      res.send(200, req.user)
+    }
+  })
+  app.post('/addfriend', function(req, res) {
+    User.findOne({id : req.param('id')},'Friend', function(err, user) {
+        console.log(user);
+
+        for (variable of user.Friend) {
+            if(variable == req.param('Fid')){
+              console.log("Friend already Exist");
+              res.send(400, {massage : "Friend already Exist"})
+              return;
+            }
+        }
+      User.findOne({id : req.param('Fid')}, function(err, friend) {
+        if(err){
+          console.log("err"+err);
+          throw err;
+        }
+        if(!friend){
+          console.log("user not find");
+          res.send(400, {message : "user not find"})
+        }else{
+          user.Friend.push(req.param('Fid'))
+          user.save(function(err) {
+            if(err){
+              console.log("user save err");
+              res.send(400, {message : "user save err"})
+            }else{
+              res.send(200, user)
+            }
+          })
+        }
+      })
+    })
+  })
+  app.post('/getfriendlist', function(req, res) {
+    User.findOne({id : req.param('id')},'Friend', function(err, friend_list) {
+      for (var variable of friend_list.Friend) {
+          console.log(variable);
+      }
+      res.send(200, friend_list)
+    })
+  })
 }
