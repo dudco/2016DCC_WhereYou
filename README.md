@@ -38,3 +38,7 @@ And사용법
 
     param으로 id, loca_w(위도), loca_g(경도)를 받습니다.
 # 2016DCC_WhereYou
+
+Chat
+-
+* /public/index.html은 클라 예시입니다 script부분을 잘 봐주세요
